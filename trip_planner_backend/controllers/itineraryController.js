@@ -1,4 +1,9 @@
 const axios = require("axios");
+const {
+  validateFlightQueryParams,
+  validateHotelQueryParams,
+  validateSiteQueryParams,
+} = require("../validations/index");
 
 const axiosInstance = axios.create({
   baseURL: process.env.MICROSERVICE_BASE_URL,
@@ -8,6 +13,23 @@ const axiosInstance = axios.create({
     CLIENT_SECRET: process.env.CLIENT_SECRET,
   },
 });
+
+const getFlightsByOriginAndDestination = async (req, res) => {
+  const errors = validateFlightQueryParams(req.query);
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const { origin, destination } = req.query;
+    const response = await axiosInstance.get(
+      `/flights/search?origin=${origin}&destination=${destination}`
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch flights." });
+  }
+};
 
 const getFlights = async (req, res) => {
   try {
@@ -42,6 +64,23 @@ const getFlights = async (req, res) => {
   }
 };
 
+const getHotelsByLocation = async (req, res) => {
+  const errors = validateHotelQueryParams(req.query);
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const { location } = req.query;
+    const response = await axiosInstance.get(
+      `/hotels/search?location=${location}`
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch hotel." });
+  }
+};
+
 const getHotels = async (req, res) => {
   try {
     const test_error = req.query.test_error;
@@ -66,6 +105,23 @@ const getHotels = async (req, res) => {
         .json({ error: "Simulated error for testing purposes." });
     }
     res.status(500).json({ error: "Failed to fetch hotels." });
+  }
+};
+
+const getSitesByLocation = async (req, res) => {
+  const errors = validateSiteQueryParams(req.query);
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const { location } = req.query;
+    const response = await axiosInstance.get(
+      `/sites/search?location=${location}`
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch sites." });
   }
 };
 
@@ -96,4 +152,11 @@ const getSites = async (req, res) => {
   }
 };
 
-module.exports = { getFlights, getHotels, getSites };
+module.exports = {
+  getFlights,
+  getHotels,
+  getSites,
+  getFlightsByOriginAndDestination,
+  getHotelsByLocation,
+  getSitesByLocation,
+};
