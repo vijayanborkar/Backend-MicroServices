@@ -1,3 +1,8 @@
+const {
+  validateConcertQueryParams,
+  validateMerchandiseStallQueryParams,
+  validateAfterPartiesQueryParams,
+} = require("../validations/index");
 const axios = require("axios");
 
 const axiosInstance = axios.create({
@@ -8,6 +13,23 @@ const axiosInstance = axios.create({
     CLIENT_SECRET: process.env.CLIENT_SECRET,
   },
 });
+
+const getConcertsByArtistAndCity = async (req, res) => {
+  const errors = validateConcertQueryParams(req.query);
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const { artist, city } = req.query;
+    const response = await axiosInstance.get(
+      `/concerts/search?artist=${artist}&city=${city}`
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch concerts." });
+  }
+};
 
 const getConcerts = async (req, res) => {
   try {
@@ -39,6 +61,21 @@ const getConcerts = async (req, res) => {
         .json({ error: "Simulated error for testing purposes." });
     }
     res.status(500).json({ error: "Failed to fetch concerts." });
+  }
+};
+
+const getMerchandiseStallsByStallName = async (req, res) => {
+  const errors = validateMerchandiseStallQueryParams(req.query);
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const { stallName } = req.query;
+    const response = await axiosInstance(
+      `/merchandiseStalls/search?stallName=${stallName}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch merchandise stalls." });
   }
 };
 
@@ -75,6 +112,21 @@ const getMerchandiseStalls = async (req, res) => {
   }
 };
 
+const getAfterPartiesByCity = async (req, res) => {
+  const errors = validateAfterPartiesQueryParams(req.query);
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const { city } = req.query;
+    const response = await axiosInstance.get(
+      `/afterParties/search?city=${city}`
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch After Parties." });
+  }
+};
+
 const getAfterParties = async (req, res) => {
   try {
     const test_error = req.query.test_error;
@@ -108,4 +160,11 @@ const getAfterParties = async (req, res) => {
   }
 };
 
-module.exports = { getConcerts, getMerchandiseStalls, getAfterParties };
+module.exports = {
+  getConcerts,
+  getMerchandiseStalls,
+  getAfterParties,
+  getConcertsByArtistAndCity,
+  getMerchandiseStallsByStallName,
+  getAfterPartiesByCity,
+};

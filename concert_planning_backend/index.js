@@ -6,6 +6,9 @@ const {
   getConcerts,
   getMerchandiseStalls,
   getAfterParties,
+  getConcertsByArtistAndCity,
+  getMerchandiseStallsByStallName,
+  getAfterPartiesByCity,
 } = require("./controller/tourController");
 const { sequelize } = require("./models");
 
@@ -20,6 +23,12 @@ app.get("/tour/:id", getTour);
 app.get("/data/concerts", getConcerts);
 app.get("/data/merchandiseStalls", getMerchandiseStalls);
 app.get("/data/afterParties", getAfterParties);
+app.get("/data/getConcertsByArtistAndCity", getConcertsByArtistAndCity);
+app.get(
+  "/data/getMerchandiseStallsByStallName",
+  getMerchandiseStallsByStallName
+);
+app.get("/data/getAfterPartiesByCity", getAfterPartiesByCity);
 
 sequelize
   .authenticate()
@@ -27,7 +36,7 @@ sequelize
     console.log("Database Connected.");
   })
   .catch((error) => {
-    console.log("Unable to connect to the database.", error);
+    console.error("Unable to connect to the database.", error);
   });
 
 const port = process.env.PORT || 3000;
