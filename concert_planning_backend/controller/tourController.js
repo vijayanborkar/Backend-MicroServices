@@ -3,16 +3,7 @@ const {
   validateMerchandiseStallQueryParams,
   validateAfterPartiesQueryParams,
 } = require("../validations/index");
-const axios = require("axios");
-
-const axiosInstance = axios.create({
-  baseURL: process.env.MICROSERVICE_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-    CLIENT_KEY: process.env.CLIENT_KEY,
-    CLIENT_SECRET: process.env.CLIENT_SECRET,
-  },
-});
+const axiosInstance = require("../lib/axios.lib");
 
 const getConcertsByArtistAndCity = async (req, res) => {
   const errors = validateConcertQueryParams(req.query);
@@ -21,8 +12,9 @@ const getConcertsByArtistAndCity = async (req, res) => {
 
   try {
     const { artist, city } = req.query;
+    const encodedCity = encodeURIComponent(city);
     const response = await axiosInstance.get(
-      `/concerts/search?artist=${artist}&city=${city}`
+      `/concerts/search?artist=${artist}&city=${encodedCity}`
     );
 
     res.json(response.data);
@@ -70,8 +62,9 @@ const getMerchandiseStallsByStallName = async (req, res) => {
 
   try {
     const { stallName } = req.query;
-    const response = await axiosInstance(
-      `/merchandiseStalls/search?stallName=${stallName}`
+    const encodedStall = encodeURIComponent(stallName);
+    const response = await axiosInstance.get(
+      `/merchandiseStalls/search?stallName=${encodedStall}`
     );
     res.json(response.data);
   } catch (error) {
